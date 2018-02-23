@@ -3,17 +3,21 @@ module PropertySpec (main, spec) where
 
 import           Test.Hspec
 import           Data.String.Builder
-import           System.IO
-import           System.IO.Silently (hCapture)
 import           Control.Monad.Trans.State
 
+#if __GLASGOW_HASKELL__ < 710
+import           Data.Monoid hiding ((<>))
+#endif
+
 import           Property
-import           Interpreter (withInterpreter)
+import           Interpreter (withInterpreter, Interpreter)
+import           Parse
 import           Report
 
 main :: IO ()
 main = hspec spec
 
+evalProperty :: Interpreter -> Parse.Expression -> IO PropertyResult
 evalProperty prop expect = runProperty prop expect `evalStateT` ReportState 0 True mempty
 
 isFailure :: PropertyResult -> Bool
