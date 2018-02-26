@@ -61,9 +61,9 @@ spec = do
 
     describe "--verbose" $ do
       context "without --verbose" $ do
-        it "does not preserve the `it` variable" $ do
+        it "is not verbose by default" $ do
           runVerbose <$> parseOptions [] `shouldBe` Result False
 
       context "with --verbose" $ do
-        it "preserves the `it` variable" $ do
+        it "parses verbose option" $ do
           runVerbose <$> parseOptions ["--verbose"] `shouldBe` Result True
