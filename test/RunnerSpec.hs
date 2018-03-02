@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP, OverloadedStrings #-}
-module ReportSpec (main, spec) where
+module RunnerSpec (main, spec) where
 
 import           Test.Hspec
 
@@ -10,7 +10,7 @@ import           Data.Monoid
 import           System.IO
 import           System.IO.Silently (hCapture)
 import           Control.Monad.Trans.State
-import           Report
+import           Runner
 
 main :: IO ()
 main = hspec spec

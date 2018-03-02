@@ -12,13 +12,11 @@ module Property (
 import           Data.List
 import           Data.Maybe
 import           Data.Foldable
-import           Control.Monad.IO.Class
 
 import           Util
 import           Interpreter (Interpreter)
 import qualified Interpreter
 import           Parse
-import           Report
 
 -- | The result of evaluating an interaction.
 data PropertyResult =
@@ -27,14 +25,14 @@ data PropertyResult =
   | Error String
   deriving (Eq, Show)
 
-runProperty :: Interpreter -> Expression -> Report PropertyResult
+runProperty :: Interpreter -> Expression -> IO PropertyResult
 runProperty repl expression = do
-  _ <- liftIO $ Interpreter.safeEval repl "import Test.QuickCheck ((==>))"
-  _ <- liftIO $ Interpreter.safeEval repl "import Test.QuickCheck.All (polyQuickCheck)"
-  _ <- liftIO $ Interpreter.safeEval repl "import Language.Haskell.TH (mkName)"
-  _ <- liftIO $ Interpreter.safeEval repl ":set -XTemplateHaskell"
-  r <- liftIO $ freeVariables repl expression >>=
-           (Interpreter.safeEval repl . quickCheck expression)
+  _ <- Interpreter.safeEval repl "import Test.QuickCheck ((==>))"
+  _ <- Interpreter.safeEval repl "import Test.QuickCheck.All (polyQuickCheck)"
+  _ <- Interpreter.safeEval repl "import Language.Haskell.TH (mkName)"
+  _ <- Interpreter.safeEval repl ":set -XTemplateHaskell"
+  r <- freeVariables repl expression >>=
+       (Interpreter.safeEval repl . quickCheck expression)
   case r of
     Left err -> do
       return (Error err)

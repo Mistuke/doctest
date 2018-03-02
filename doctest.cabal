@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.27.0.
+-- This file has been generated from package.yaml by hpack version 0.26.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 538bfdd8c946d35b49074b4035b12512e14ec39cc0cf670af664356da3ae6b1e
+-- hash: f1a028ddd76c3dde2b50cbc41632ed5086b8e531ec4f83db05e5265b076a126a
 
 name:           doctest
 version:        0.14.2
@@ -12,13 +12,13 @@ description:    The doctest program checks examples in source code comments.  It
                 .
                 Documentation is at <https://github.com/sol/doctest#readme>.
 category:       Testing
-homepage:       https://github.com/sol/doctest#readme
 bug-reports:    https://github.com/sol/doctest/issues
-author:         Simon Hengel <sol@typeful.net>
-maintainer:     Simon Hengel <sol@typeful.net>
-copyright:      (c) 2009-2018 Simon Hengel
+homepage:       https://github.com/sol/doctest#readme
 license:        MIT
 license-file:   LICENSE
+copyright:      (c) 2009-2018 Simon Hengel
+author:         Simon Hengel <sol@typeful.net>
+maintainer:     Simon Hengel <sol@typeful.net>
 build-type:     Simple
 cabal-version:  >= 1.10
 
@@ -107,6 +107,10 @@ source-repository head
   location: https://github.com/sol/doctest
 
 library
+  ghc-options: -Wall
+  hs-source-dirs:
+      src
+      ghci-wrapper/src
   exposed-modules:
       Test.DocTest
   other-modules:
@@ -118,7 +122,6 @@ library
       PackageDBs
       Parse
       Property
-      Report
       Run
       Runner
       Runner.Example
@@ -126,10 +129,6 @@ library
       Util
       Language.Haskell.GhciWrapper
       Paths_doctest
-  hs-source-dirs:
-      src
-      ghci-wrapper/src
-  ghc-options: -Wall
   build-depends:
       base ==4.*
     , base-compat >=0.7.0
@@ -148,9 +147,9 @@ executable doctest
   main-is: Main.hs
   other-modules:
       Paths_doctest
+  ghc-options: -Wall -threaded
   hs-source-dirs:
       driver
-  ghc-options: -Wall -threaded
   build-depends:
       base ==4.*
     , base-compat >=0.7.0
@@ -167,11 +166,11 @@ executable doctest
   default-language: Haskell2010
 
 test-suite doctests
-  type: exitcode-stdio-1.0
   main-is: doctests.hs
+  type: exitcode-stdio-1.0
+  ghc-options: -Wall -threaded
   hs-source-dirs:
       test
-  ghc-options: -Wall -threaded
   build-depends:
       base ==4.*
     , base-compat >=0.7.0
@@ -188,7 +187,6 @@ test-suite doctests
   default-language: Haskell2010
 
 test-suite spec
-  type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
       ExtractSpec
@@ -200,8 +198,8 @@ test-suite spec
       PackageDBsSpec
       ParseSpec
       PropertySpec
-      ReportSpec
       Runner.ExampleSpec
+      RunnerSpec
       RunSpec
       SandboxSpec
       UtilSpec
@@ -213,7 +211,6 @@ test-suite spec
       PackageDBs
       Parse
       Property
-      Report
       Run
       Runner
       Runner.Example
@@ -222,12 +219,13 @@ test-suite spec
       Util
       Language.Haskell.GhciWrapper
       Paths_doctest
+  type: exitcode-stdio-1.0
+  ghc-options: -Wall -threaded
+  cpp-options: -DTEST
   hs-source-dirs:
       test
       src
       ghci-wrapper/src
-  ghc-options: -Wall -threaded
-  cpp-options: -DTEST
   c-sources:
       test/integration/with-cbits/foo.c
   build-depends:

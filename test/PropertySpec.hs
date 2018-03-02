@@ -3,22 +3,16 @@ module PropertySpec (main, spec) where
 
 import           Test.Hspec
 import           Data.String.Builder
-import           Control.Monad.Trans.State
 
 #if __GLASGOW_HASKELL__ < 710
 import           Data.Monoid hiding ((<>))
 #endif
 
 import           Property
-import           Interpreter (withInterpreter, Interpreter)
-import           Parse
-import           Report
+import           Interpreter (withInterpreter)
 
 main :: IO ()
 main = hspec spec
-
-evalProperty :: Interpreter -> Parse.Expression -> IO PropertyResult
-evalProperty prop expect = runProperty prop expect `evalStateT` ReportState 0 True mempty
 
 isFailure :: PropertyResult -> Bool
 isFailure (Failure _) = True
@@ -26,18 +20,18 @@ isFailure _ = False
 
 spec :: Spec
 spec = do
-  describe "evalProperty" $ do
+  describe "runProperty" $ do
     it "reports a failing property" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "False" `shouldReturn` Failure "*** Failed! Falsifiable (after 1 test):"
+      runProperty repl "False" `shouldReturn` Failure "*** Failed! Falsifiable (after 1 test):"
 
     it "runs a Bool property" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "True" `shouldReturn` Success
+      runProperty repl "True" `shouldReturn` Success
 
     it "runs a Bool property with an explicit type signature" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "True :: Bool" `shouldReturn` Success
+      runProperty repl "True :: Bool" `shouldReturn` Success
 
     it "runs an implicitly quantified property" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "(reverse . reverse) xs == (xs :: [Int])" `shouldReturn` Success
+      runProperty repl "(reverse . reverse) xs == (xs :: [Int])" `shouldReturn` Success
 
     it "runs an implicitly quantified property even with GHC 7.4" $
 #if __GLASGOW_HASKELL__ == 702
@@ -49,24 +43,24 @@ spec = do
       -- ghc will include a suggestion (did you mean `id` instead of `is`) in
       -- the error message
       withInterpreter [] $ \repl -> do
-        evalProperty repl "foldr (+) 0 is == sum (is :: [Int])" `shouldReturn` Success
+        runProperty repl "foldr (+) 0 is == sum (is :: [Int])" `shouldReturn` Success
 #endif
 
     it "runs an explicitly quantified property" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "\\xs -> (reverse . reverse) xs == (xs :: [Int])" `shouldReturn` Success
+      runProperty repl "\\xs -> (reverse . reverse) xs == (xs :: [Int])" `shouldReturn` Success
 
     it "allows to mix implicit and explicit quantification" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "\\x -> x + y == y + x" `shouldReturn` Success
+      runProperty repl "\\x -> x + y == y + x" `shouldReturn` Success
 
     it "reports the value for which a property fails" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "x == 23" `shouldReturn` Failure "*** Failed! Falsifiable (after 1 test):\n0"
+      runProperty repl "x == 23" `shouldReturn` Failure "*** Failed! Falsifiable (after 1 test):\n0"
 
     it "reports the values for which a property that takes multiple arguments fails" $ withInterpreter [] $ \repl -> do
       let vals x = case x of (Failure r) -> tail (lines r); _ -> error "Property did not fail!"
-      vals `fmap` evalProperty repl "x == True && y == 10 && z == \"foo\"" `shouldReturn` ["False", "0", show ("" :: String)]
+      vals `fmap` runProperty repl "x == True && y == 10 && z == \"foo\"" `shouldReturn` ["False", "0", show ("" :: String)]
 
     it "defaults ambiguous type variables to Integer" $ withInterpreter [] $ \repl -> do
-      evalProperty repl "reverse xs == xs" >>= (`shouldSatisfy` isFailure)
+      runProperty repl "reverse xs == xs" >>= (`shouldSatisfy` isFailure)
 
   describe "freeVariables" $ do
     it "finds a free variables in a term" $ withInterpreter [] $ \repl -> do
